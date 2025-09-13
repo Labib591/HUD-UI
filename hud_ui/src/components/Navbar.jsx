@@ -8,22 +8,25 @@ export default function Navbar() {
   const { data: session, status } = useSession();
 
   return (
-    <nav className="bg-white shadow-sm border-b">
-      <div className="container mx-auto px-4">
+    <nav className="bg-gradient-to-r from-gray-950 via-black to-gray-900 border-b border-cyan-500/30 shadow-[0_0_15px_rgba(0,255,255,0.2)]">
+      <div className="container mx-auto px-6">
         <div className="flex justify-between items-center h-16">
           {/* Logo/Brand */}
           <div className="flex items-center">
-            <Link href="/" className="text-xl font-bold text-gray-900">
-              HUD UI
+            <Link
+              href="/"
+              className="text-2xl font-extrabold tracking-wide text-cyan-400 drop-shadow-[0_0_8px_rgba(0,255,255,0.7)] hover:text-cyan-300 transition-colors"
+            >
+              HUD<span className="text-gray-300">UI</span>
             </Link>
           </div>
 
           {/* Navigation Links */}
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="hidden md:flex items-center space-x-8">
             {session && (
-              <Link 
-                href="/" 
-                className="text-gray-600 hover:text-gray-900 transition-colors"
+              <Link
+                href="/"
+                className="text-gray-400 hover:text-cyan-300 transition-colors tracking-wide"
               >
                 Dashboard
               </Link>
@@ -33,16 +36,19 @@ export default function Navbar() {
           {/* User Actions */}
           <div className="flex items-center space-x-4">
             {status === "loading" ? (
-              <div className="text-sm text-gray-500">Loading...</div>
+              <div className="text-sm text-gray-400 animate-pulse">
+                Initializing...
+              </div>
             ) : session ? (
               <div className="flex items-center space-x-4">
-                <div className="hidden sm:block text-sm text-gray-700">
-                  Welcome, {session.user.name}
+                <div className="hidden sm:block text-sm text-gray-300">
+                  Welcome,{" "}
+                  <span className="text-cyan-400">{session.user.name}</span>
                 </div>
                 <Button
                   onClick={() => signOut()}
-                  variant="outline"
                   size="sm"
+                  className="bg-red-600 hover:bg-red-500 text-white shadow-[0_0_12px_rgba(255,0,0,0.6)]"
                 >
                   Sign Out
                 </Button>
@@ -50,12 +56,19 @@ export default function Navbar() {
             ) : (
               <div className="flex items-center space-x-2">
                 <Link href="/login">
-                  <Button variant="outline" size="sm">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-cyan-500 text-cyan-400 hover:bg-cyan-500/10"
+                  >
                     Sign In
                   </Button>
                 </Link>
                 <Link href="/register">
-                  <Button size="sm">
+                  <Button
+                    size="sm"
+                    className="bg-cyan-600 hover:bg-cyan-500 text-white shadow-[0_0_12px_rgba(0,255,255,0.6)]"
+                  >
                     Sign Up
                   </Button>
                 </Link>

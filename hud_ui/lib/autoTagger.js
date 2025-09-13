@@ -1,6 +1,9 @@
+import Groq from "groq-sdk";
+
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const groq = new Groq(process.env.GROQ_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 export async function autoTagger(title, content) {
@@ -13,6 +16,7 @@ export async function autoTagger(title, content) {
     `;
 
     try {
+      console.log("I am using Gemini");
       const result = await model.generateContent(prompt);
       const raw = result.response.text();
 
@@ -20,11 +24,26 @@ export async function autoTagger(title, content) {
         .split(",")
         .map((tag) => tag.trim().toLowerCase())
         .filter(Boolean);
-    } catch (err) {
-      console.error("AutoTagger error:", err.message);
-
-      // fallback tags if Gemini fails
-      return ["untagged", "error"];
+    } catch {
+      try {
+        console.log("I am using Groq");
+        const chatCompletion = await groq.chat.completions.create({
+          model: "llama-3.1-8b-instant",
+          messages: [{ role: "user", content: prompt }],
+          temperature: 0.3,
+        });
+    
+        const raw = chatCompletion.choices[0]?.message?.content || "";
+    
+        return raw
+          .split(",")
+          .map((tag) => tag.trim().toLowerCase())
+          .filter(Boolean);
+      } catch (err) {
+        console.error("AutoTagger (Groq) error:", err.message);
+        return ["untagged", "error"];
+      }
+    
     }
   
 }
