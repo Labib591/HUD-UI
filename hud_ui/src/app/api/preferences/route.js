@@ -68,3 +68,42 @@ export async function GET(request) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
+
+
+export async function DELETE(request) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { preference } = await request.json();
+
+    if (!preference) {
+      return NextResponse.json({ error: "Preference is required" }, { status: 400 });
+    }
+
+    await dbConnect();
+    const user = await User.findById(session.user.id);
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Remove the preference
+    user.preferences.focusAreas = user.preferences.focusAreas.filter(
+      (p) => p !== preference
+    );
+    await user.save();
+
+    return NextResponse.json({ 
+      success: true,
+      preferences: user.preferences.focusAreas
+    });
+
+  } catch (error) {
+    console.error("Error deleting preference:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
