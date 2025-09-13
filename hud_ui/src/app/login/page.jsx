@@ -119,8 +119,8 @@ export default function LoginPage() {
           general: "Invalid email or password. Please try again." 
         })
       } else if (result?.ok) {
-        // Success - redirect to dashboard
-        window.location.href = '/dashboard'
+        // Success - redirect to homepage
+        window.location.href = '/'
       }
     } catch (error) {
       console.error("Login error:", error)
@@ -139,7 +139,7 @@ export default function LoginPage() {
     try {
       // Use redirect: true to let NextAuth handle the redirect
       await signIn('google', { 
-        callbackUrl: '/dashboard',
+        callbackUrl: '/',
         redirect: true 
       })
     } catch (error) {

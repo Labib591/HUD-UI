@@ -17,7 +17,7 @@ const UserSchema = new mongoose.Schema(
     // HUD-specific data
     bookmarks: [{ type: mongoose.Schema.Types.ObjectId, ref: "FeedItem" }],
     preferences: {
-      focusAreas: [String],
+      focusAreas: { type: [String], default: [] },
       autoScrollSpeed: { type: Number, default: 5 },
       blendRatio: { type: Number, default: 70 },
     },
