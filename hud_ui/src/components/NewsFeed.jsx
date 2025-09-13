@@ -1,18 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import NewsCard from "./NewsCard";
 
 export default function NewsFeed({ preferences }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [fetching, setFetching] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const intervalRef = useRef(null);
 
   async function fetchFeed() {
     try {
       const res = await fetch(`/api/feed`);
       const data = await res.json();
-      console.log(data);
       setItems(data.items || []);
     } catch (err) {
       console.error("Error fetching feed:", err);
@@ -37,6 +40,19 @@ export default function NewsFeed({ preferences }) {
     fetchFeed();
   }, [preferences]);
 
+  // Auto-advance every 5 seconds
+  useEffect(() => {
+    if (!items.length) return;
+
+    if (!paused) {
+      intervalRef.current = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % items.length);
+      }, 3000);
+    }
+
+    return () => clearInterval(intervalRef.current);
+  }, [items, paused]);
+
   if (loading) return <p>Loading feed...</p>;
 
   return (
@@ -48,18 +64,22 @@ export default function NewsFeed({ preferences }) {
         </Button>
       </div>
 
-      <ul>
-        {items.map((item) => (
-          <li key={item._id} className="mb-4">
-            <a href={item.url} target="_blank" className="text-blue-600">
-              {item.title}
-            </a>
-            <p className="text-sm text-gray-500">
-              Source: {item.source} | Tags: {item.tags?.join(", ")}
-            </p>
-          </li>
+      <div
+        className="relative w-full"
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+      >
+        {items.map((item, index) => (
+          <div
+            key={item._id}
+            className={`absolute top-0 left-0 w-full transition-opacity duration-500 ${
+              index === currentIndex ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <NewsCard item={item} />
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
