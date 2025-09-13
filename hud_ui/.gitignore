@@ -40,4 +40,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-.vercel
+# MongoDB binary files
+mongodb-macos-x86_64-*/
+*.tgz
+mongodb/
+
+# Logs
+logs/
+*.log
