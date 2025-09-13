@@ -28,12 +28,13 @@ export default function NewsFeed({ preferences }) {
   async function handleFetchNews() {
     setFetching(true);
     try {
-      // Fetch from both Hacker News and Reddit in parallel
+      // Fetch from Hacker News, Reddit, and Twitter in parallel
       await Promise.all([
         fetch("/api/news"), // Hacker News
         fetch("/api/reddit"), // Reddit
+        fetch("/api/twitter"), // Twitter
       ]);
-      await fetchFeed(); // reload feed after both fetches complete
+      await fetchFeed(); // reload feed after all fetches complete
     } catch (err) {
       console.error("Error fetching news:", err);
     } finally {
