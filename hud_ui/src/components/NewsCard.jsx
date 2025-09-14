@@ -2,11 +2,30 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Button } from "@/components/ui/button"
 import { Bookmark, MessageSquare, Repeat2, Heart, Twitter } from "lucide-react"
 import Image from "next/image"
+import { useState } from "react"
 
-export default function NewsCard({ item, onBookmark }) {
+export default function NewsCard({ item, onBookmark, isBookmarked: initialBookmarked = false }) {
+  const [isBookmarked, setIsBookmarked] = useState(initialBookmarked);
+  const [isBookmarking, setIsBookmarking] = useState(false);
   const isTwitter = item.source?.toLowerCase().includes('twitter')
   const metadata = item.metadata || {}
   
+  const handleBookmarkClick = async (e) => {
+    e.stopPropagation();
+    if (isBookmarking) return;
+    
+    try {
+      setIsBookmarking(true);
+      await onBookmark?.(item, isBookmarked);
+      setIsBookmarked(!isBookmarked);
+    } catch (error) {
+      console.error('Error updating bookmark:', error);
+      // You might want to show an error toast here
+    } finally {
+      setIsBookmarking(false);
+    }
+  };
+
   return (
     <Card className={`w-full bg-gradient-to-br from-gray-900 via-black to-gray-950 border ${isTwitter ? 'border-blue-500/30' : 'border-cyan-500/30'} shadow-[0_0_15px_rgba(0,255,255,0.2)] rounded-2xl hover:shadow-[0_0_25px_rgba(0,255,255,0.4)] transition-all duration-300 p-5`}>
       {isTwitter && (
@@ -51,13 +70,16 @@ export default function NewsCard({ item, onBookmark }) {
         <Button
           variant="ghost"
           size="icon"
-          onClick={(e) => {
-            e.stopPropagation();
-            onBookmark?.(item);
-          }}
-          className="text-cyan-400 hover:text-cyan-200 hover:bg-cyan-500/10 rounded-full transition-all ml-2"
+          onClick={handleBookmarkClick}
+          disabled={isBookmarking}
+          className={`${isBookmarked ? 'text-amber-400 hover:text-amber-300' : 'text-cyan-400 hover:text-cyan-300'} hover:bg-opacity-10 rounded-full transition-all ml-2`}
+          aria-label={isBookmarked ? 'Remove bookmark' : 'Add to bookmarks'}
         >
-          <Bookmark className="h-5 w-5" />
+          {isBookmarking ? (
+            <span className="h-5 w-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <Bookmark className={`h-5 w-5 ${isBookmarked ? 'fill-current' : ''}`} />
+          )}
         </Button>
       </CardHeader>
 
@@ -99,18 +121,7 @@ export default function NewsCard({ item, onBookmark }) {
             </>
           )}
         </div>
-        
-        {isTwitter && (
-          <a
-            href={item.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-blue-400 hover:text-blue-300 hover:underline transition-colors"
-          >
-            View on Twitter
-          </a>
-        )}
       </CardFooter>
     </Card>
-  )
+  );
 }

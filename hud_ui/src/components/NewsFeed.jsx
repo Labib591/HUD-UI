@@ -98,9 +98,32 @@ export default function NewsFeed({ preferences }) {
           {currentItems.map((item) => (
             <div
               key={item._id}
-              className="transition-all duration-500 hover:scale-[1.01]"
+              className="relative group transition-all duration-300 hover:scale-[1.01]"
             >
-              <NewsCard item={item} />
+              <NewsCard 
+                item={item} 
+                onBookmark={async (item, isBookmarked) => {
+                  try {
+                    const response = await fetch('/api/bookmark', {
+                      method: isBookmarked ? 'DELETE' : 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({ _id: item._id }),
+                    });
+
+                    if (!response.ok) {
+                      throw new Error(`Failed to ${isBookmarked ? 'remove' : 'add'} bookmark`);
+                    }
+                    
+                    // Optional: Show a success message or update UI
+                    console.log(`Bookmark ${isBookmarked ? 'removed' : 'added'} successfully`);
+                  } catch (error) {
+                    console.error('Error updating bookmark:', error);
+                    // You might want to show an error toast here
+                  }
+                }}
+              />
             </div>
           ))}
         </div>
