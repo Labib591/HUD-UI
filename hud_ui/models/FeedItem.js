@@ -12,5 +12,7 @@ const FeedItemSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+FeedItemSchema.index({ createdAt: 1 }, { expireAfterSeconds: 60 * 60 * 24 * 30 });
+
 export default mongoose.models.FeedItem ||
   mongoose.model("FeedItem", FeedItemSchema);

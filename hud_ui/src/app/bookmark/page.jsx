@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import NewsCard from '@/components/NewsCard';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
+import api from '../../../lib/api';
 
 export default function BookmarksPage() {
   const { data: session, status } = useSession();
@@ -28,15 +29,10 @@ export default function BookmarksPage() {
   const fetchBookmarks = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/bookmark');
+      const response = await api.get('/bookmark');
       
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to fetch bookmarks');
-      }
-      
-      const data = await response.json();
-      setBookmarks(data.bookmarks || []);
+      const data =  response.data.bookmarks;
+      setBookmarks(data || []);
     } catch (err) {
       console.error('Error in fetchBookmarks:', err);
       setError(err.message || 'Failed to load bookmarks. Please try again.');
@@ -47,17 +43,9 @@ export default function BookmarksPage() {
 
   const handleBookmark = async (item, isBookmarked) => {
     try {
-      const response = await fetch('/api/bookmark', {
-        method: isBookmarked ? 'DELETE' : 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ _id: item._id }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to ${isBookmarked ? 'remove' : 'add'} bookmark`);
-      }
+      const method = isBookmarked ? 'DELETE' : 'POST';
+      const response = await api[method]('/bookmark', { _id: item._id });
+      return response.data;
 
       // Refresh bookmarks after successful operation
       fetchBookmarks();
