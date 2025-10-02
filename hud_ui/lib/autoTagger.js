@@ -4,7 +4,8 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const groq = new Groq(process.env.GROQ_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
 
 export async function autoTagger(title, content) {
   
@@ -24,7 +25,8 @@ export async function autoTagger(title, content) {
         .split(",")
         .map((tag) => tag.trim().toLowerCase())
         .filter(Boolean);
-    } catch {
+    } catch(err) {
+      console.error("AutoTagger (Gemini) error:", err.message);
       try {
         console.log("I am using Groq");
         const chatCompletion = await groq.chat.completions.create({

@@ -51,7 +51,7 @@ export default function NewsFeed({ preferences, session }) {
       await Promise.all([
         api.get("/news"),     // Hacker News
         api.get("/reddit"),   // Reddit
-        api.get("/twitter"),  // Twitter
+        // api.get("/twitter"),  // Twitter
       ]);
       await fetchFeed(); // reload feed after all fetches complete
     } catch (err) {
@@ -64,6 +64,17 @@ export default function NewsFeed({ preferences, session }) {
   useEffect(() => {
     fetchFeed();
   }, [preferences, session]);
+
+  useEffect(() => {
+    handleFetchNews(); // fetch once when loaded
+    const interval = setInterval(() => {
+      console.log("⏰ Auto-fetching news...");
+      handleFetchNews();
+    }, 3600000); // every 1 hour
+  
+    return () => clearInterval(interval);
+  }, []);
+  
 
   // Auto-advance every 3 seconds
   useEffect(() => {

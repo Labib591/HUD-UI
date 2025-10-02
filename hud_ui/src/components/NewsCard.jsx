@@ -118,6 +118,8 @@ export default function NewsCard({ item, onBookmark, isBookmarked: initialBookma
               )}
               <span className="text-cyan-300">Popularity:</span>
               <span>{item.popularity}</span>
+              <span className="text-cyan-300">Published At:</span>
+              <span>{new Date(item.publishedAt).toLocaleDateString()}</span>
             </>
           )}
         </div>
